@@ -1,4 +1,10 @@
+/.clangd
+/.libs/
+/.objs/
 /.vscode/
+/alire/
 /build/
+/config/
+/runtime/
 sdkconfig
 sdkconfig.old
