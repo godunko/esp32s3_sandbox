@@ -17,8 +17,8 @@
     {
       "a-textio.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/system_io/a-textio.adb" },
       "s-atopri.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/atomics/32/s-atopri.ads" },
-      "s-macres.adb": { "path": "source/runtime/s-macres.adb" },
-      "s-textio.adb": { "path": "source/runtime/s-textio.adb" }
+      "s-macres.adb": { "path": "main/source/runtime/s-macres.adb" },
+      "s-textio.adb": { "path": "main/source/runtime/s-textio.adb" }
     }
   },
 
