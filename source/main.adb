@@ -6,6 +6,7 @@ with Interfaces.C;
 
 with driver_sdmmc_host_h;
 with esp_err_h;
+with esp_event_h;
 with sd_protocol_types_h;
 with sdmmc_cmd_h;
 with soc_gpio_num_h;
@@ -71,6 +72,13 @@ begin
       Err := sdmmc_cmd_h.sdmmc_card_init (host'Access, card'Access);
 
       Check (Err, "sdmmc_card_init failed");
+   end;
+
+   declare
+      Err  : esp_err_h.esp_err_t;
+
+   begin
+      Err := esp_event_h.esp_event_loop_create_default;
    end;
 
    WiFi.Initialize;
