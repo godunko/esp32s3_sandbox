@@ -4,7 +4,10 @@ library project Light_ESP32S3_Demo is
 
    for Target use "xtensa-esp32-elf";
    for Runtime ("Ada") use "runtime";
-   for Source_Dirs use ("main/source", "source");
+   for Source_Dirs use
+     ("main/source",
+      "source",
+      "source/generated");
    for Object_Dir use ".objs";
    for Library_Name use "light_esp32_demo";
    for Library_Dir use ".libs";

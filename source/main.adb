@@ -1,13 +1,42 @@
 
 pragma Ada_2022;
 
-with A0B.Types;
 with Ada.Text_IO;
+with Interfaces.C;
+
+with A0B.Types;
+
+with driver_sdmmc_host_h;
+with esp_err_h;
+with sd_protocol_types_h;
+with sdmmc_cmd_h;
+
+with ESP.SDMMC;
+with soc_gpio_num_h;
 
 procedure Main is
    use type A0B.Types.Unsigned_32;
 
+   procedure Check (Err : esp_err_h.esp_err_t);
+
    function F return String;
+
+   -----------
+   -- Check --
+   -----------
+
+   procedure Check (Err : esp_err_h.esp_err_t) is
+      use type Interfaces.C.int;
+
+   begin
+      if Err /= esp_err_h.ESP_OK then
+         Ada.Text_IO.Put_Line
+           ("Error occurred: " & esp_err_h.esp_err_t'Image (Err));
+         Ada.Text_IO.New_Line;
+
+         raise Program_Error with "Aborting due to error";
+      end if;
+   end Check;
 
    function F return String is ("def");
 
@@ -28,6 +57,33 @@ begin
    for J in 1 .. 1_000 loop
       Count := @ + 1;
    end loop;
+
+   declare
+      Host : aliased sd_protocol_types_h.sdmmc_host_t := ESP.SDMMC.Default;
+      Slot : aliased driver_sdmmc_host_h.sdmmc_slot_config_t :=
+        ESP.SDMMC.Default;
+      Card : aliased sd_protocol_types_h.sdmmc_card_t;
+      Err  : esp_err_h.esp_err_t;
+
+   begin
+      Slot.width := 1;
+      Slot.clk := soc_gpio_num_h.gpio_num_t_GPIO_NUM_5;
+      Slot.cmd := soc_gpio_num_h.gpio_num_t_GPIO_NUM_6;
+      Slot.d0  := soc_gpio_num_h.gpio_num_t_GPIO_NUM_4;
+      Slot.d3  := soc_gpio_num_h.gpio_num_t_GPIO_NUM_7;
+
+      Err := Host.init.all;  --  driver_sdmmc_host_h.sdmmc_host_init
+
+      Check (Err);
+
+      Err := driver_sdmmc_host_h.sdmmc_host_init_slot (Host.slot, Slot'Access);
+
+      Check (Err);
+
+      Err := sdmmc_cmd_h.sdmmc_card_init (host'Access, card'Access);
+
+      Check (Err);
+   end;
 
    Ada.Text_IO.Put_Line (S & A0B.Types.Unsigned_32'Image (Count));
    Ada.Text_IO.New_Line;
