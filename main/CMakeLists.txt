@@ -1,4 +1,5 @@
-idf_component_register()
+idf_component_register(
+    REQUIRES)
 
 ExternalProject_Add(adademo_build
     PREFIX ${COMPONENT_DIR}
@@ -11,7 +12,8 @@ ExternalProject_Add(adademo_build
     BUILD_BYPRODUCTS ${COMPONENT_DIR}/../.libs/liblight_esp32_demo.a
 )
 
-add_library(liblight_esp32_demo STATIC IMPORTED GLOBAL)
+add_prebuilt_library(liblight_esp32_demo "${COMPONENT_LIB}"
+    REQUIRES)
 add_dependencies(liblight_esp32_demo adademo_build)
 
 set_target_properties(liblight_esp32_demo PROPERTIES IMPORTED_LOCATION
