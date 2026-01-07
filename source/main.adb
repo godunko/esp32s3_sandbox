@@ -4,44 +4,36 @@ pragma Ada_2022;
 with Ada.Text_IO;
 with Interfaces.C;
 
-with A0B.Types;
-
 with driver_sdmmc_host_h;
 with esp_err_h;
 with sd_protocol_types_h;
 with sdmmc_cmd_h;
-
-with ESP.SDMMC;
 with soc_gpio_num_h;
 
+with ESP.SDMMC;
+
+with WiFi;
+
 procedure Main is
-   use type A0B.Types.Unsigned_32;
 
-   procedure Check (Err : esp_err_h.esp_err_t);
-
-   function F return String;
+   procedure Check (Err : esp_err_h.esp_err_t; Msg : String);
 
    -----------
    -- Check --
    -----------
 
-   procedure Check (Err : esp_err_h.esp_err_t) is
+   procedure Check (Err : esp_err_h.esp_err_t; Msg : String) is
       use type Interfaces.C.int;
 
    begin
       if Err /= esp_err_h.ESP_OK then
          Ada.Text_IO.Put_Line
-           ("Error occurred: " & esp_err_h.esp_err_t'Image (Err));
+           ("Error occurred: " & esp_err_h.esp_err_t'Image (Err) & " - " & Msg);
          Ada.Text_IO.New_Line;
 
          raise Program_Error with "Aborting due to error";
       end if;
    end Check;
-
-   function F return String is ("def");
-
-   Count : A0B.Types.Unsigned_32 := 0;
-   S     : String := "abc" & F & A0B.Types.Unsigned_32'Image (Count);
 
 begin
    Ada.Text_IO.New_Line;
@@ -53,10 +45,6 @@ begin
    Ada.Text_IO.Put_Line
      ("Feel free to replace it by your application!");
    Ada.Text_IO.New_Line;
-
-   for J in 1 .. 1_000 loop
-      Count := @ + 1;
-   end loop;
 
    declare
       Host : aliased sd_protocol_types_h.sdmmc_host_t := ESP.SDMMC.Default;
@@ -74,18 +62,19 @@ begin
 
       Err := Host.init.all;  --  driver_sdmmc_host_h.sdmmc_host_init
 
-      Check (Err);
+      Check (Err, "sdmmc_host_init failed");
 
       Err := driver_sdmmc_host_h.sdmmc_host_init_slot (Host.slot, Slot'Access);
 
-      Check (Err);
+      Check (Err, "sdmmc_host_init_slot failed");
 
       Err := sdmmc_cmd_h.sdmmc_card_init (host'Access, card'Access);
 
-      Check (Err);
+      Check (Err, "sdmmc_card_init failed");
    end;
 
-   Ada.Text_IO.Put_Line (S & A0B.Types.Unsigned_32'Image (Count));
+   WiFi.Initialize;
+
    Ada.Text_IO.New_Line;
    Ada.Text_IO.Put_Line ("Excellent, done!");
    Ada.Text_IO.New_Line;
