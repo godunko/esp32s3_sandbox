@@ -13,7 +13,10 @@ with System;
 with esp_err_h;
 with esp_event_h;
 with esp_event_base_h;
+with esp_netif_h;
+with esp_netif_types_h;
 with esp_wifi_h;
+with esp_wifi_default_h;
 with esp_wifi_types_generic_h;
 with sys_ustdint_h;
 
@@ -32,6 +35,10 @@ package body WiFi is
       arg2 : esp_event_base_h.esp_event_base_t;
       arg3 : sys_ustdint_h.int32_t;
       arg4 : System.Address) with Convention => C;
+
+   procedure Initialize_Network_Interface;
+
+   procedure Initialize_Access_Point;
 
    -----------
    -- Check --
@@ -68,15 +75,21 @@ package body WiFi is
    ----------------
 
    procedure Initialize is
+   begin
+      Initialize_Network_Interface;
+      Initialize_Access_Point;
+   end Initialize;
+
+   -----------------------------
+   -- Initialize_Access_Point --
+   -----------------------------
+
+   procedure Initialize_Access_Point is
       Err         : esp_err_h.esp_err_t;
       Init_Config : aliased esp_wifi_h.wifi_init_config_t := ESP.WiFi.Default;
       AP_Config   : aliased esp_wifi_types_generic_h.wifi_config_t;
 
    begin
-      --  Err := nvs_flash_h.nvs_flash_init;
-
-      --  Check (Err, "nvs_flash_init failed");
-
       --  Initialize WiFi component
 
       Init_Config.nvs_enable := 0;  --  Disable NVS
@@ -152,6 +165,22 @@ package body WiFi is
       Ada.Text_IO.Put_Line ("esp_wifi_start()");
       Err := esp_wifi_h.esp_wifi_start;
       Check (Err, "esp_wifi_start");
-   end Initialize;
+   end Initialize_Access_Point;
+
+   ----------------------------------
+   -- Initialize_Network_Interface --
+   ----------------------------------
+
+   procedure Initialize_Network_Interface is
+      Err : esp_err_h.esp_err_t;
+      Net : access esp_netif_types_h.esp_netif_t;
+
+   begin
+      Ada.Text_IO.Put_Line ("esp_netif_init()");
+      Err := esp_netif_h.esp_netif_init;
+      Check (Err, "esp_wifi_start");
+
+      Net := esp_wifi_default_h.esp_netif_create_default_wifi_ap;
+   end Initialize_Network_Interface;
 
 end WiFi;
