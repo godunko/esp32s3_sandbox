@@ -7,7 +7,8 @@
 pragma Ada_2022;
 
 with Ada.Text_IO;
-with Interfaces.C;
+with Ada.Unchecked_Conversion;
+with Interfaces.C.Strings;
 with System;
 
 with esp_err_h;
@@ -65,9 +66,28 @@ package body WiFi is
      (arg1 : System.Address;
       arg2 : esp_event_base_h.esp_event_base_t;
       arg3 : sys_ustdint_h.int32_t;
-      arg4 : System.Address) is
+      arg4 : System.Address)
+   is
+      function To_wifi_event_t is
+        new Ada.Unchecked_Conversion
+              (sys_ustdint_h.int32_t,
+               esp_wifi_types_generic_h.wifi_event_t);
+
    begin
-      Ada.Text_IO.Put_Line ("Handler");
+      case To_wifi_event_t (arg3) is
+         when esp_wifi_types_generic_h.WIFI_EVENT_AP_START =>
+            Ada.Text_IO.Put_Line (">>> WiFi[AP]: start");
+
+         when esp_wifi_types_generic_h.WIFI_EVENT_HOME_CHANNEL_CHANGE =>
+            Ada.Text_IO.Put_Line (">>> WiFi[AP] home channel change");
+
+         when others =>
+            Ada.Text_IO.Put_Line
+              (">>> WiFi: handler "
+                 & esp_event_base_h.Value (arg2)
+                 & esp_wifi_types_generic_h.wifi_event_t'Image
+                     (To_wifi_event_t (arg3)));
+      end case;
    end Handler;
 
    ----------------
