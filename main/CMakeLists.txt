@@ -1,5 +1,5 @@
 idf_component_register(
-    REQUIRES sdmmc esp_driver_sdmmc esp_wifi esp_netif)
+    REQUIRES sdmmc esp_driver_sdmmc esp_wifi esp_netif lwip)
 
 ExternalProject_Add(adademo_build
     PREFIX ${COMPONENT_DIR}
@@ -13,7 +13,7 @@ ExternalProject_Add(adademo_build
 )
 
 add_prebuilt_library(liblight_esp32_demo "${COMPONENT_LIB}"
-    REQUIRES sdmmc esp_driver_sdmmc esp_wifi esp_netif)
+    REQUIRES sdmmc esp_driver_sdmmc esp_wifi esp_netif lwip)
 add_dependencies(liblight_esp32_demo adademo_build)
 
 set_target_properties(liblight_esp32_demo PROPERTIES IMPORTED_LOCATION

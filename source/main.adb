@@ -13,6 +13,7 @@ with soc_gpio_num_h;
 
 with ESP.SDMMC;
 
+with Server;
 with WiFi;
 
 procedure Main is
@@ -82,6 +83,12 @@ begin
    end;
 
    WiFi.Initialize;
+
+   for J in 1 .. 10_000_000 loop
+      null;
+   end loop;
+
+   Server.Initialize;
 
    Ada.Text_IO.New_Line;
    Ada.Text_IO.Put_Line ("Excellent, done!");
